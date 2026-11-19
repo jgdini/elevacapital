@@ -1,8 +1,8 @@
 {
- "quando": "2026-11-19T14:11:44.106Z",
+ "quando": "2026-11-19T16:17:50.173Z",
  "ok": true,
  "publicado": true,
- "total": 3317,
+ "total": 3315,
  "fontes": [
   {
    "fonte": "Leilões Judiciais",
@@ -22,12 +22,12 @@
    "fonte": "Lance Judicial",
    "ok": true,
    "imoveis": 303,
-   "ultimaColetaOk": "2026-11-19T14:11:44.106Z"
+   "ultimaColetaOk": "2026-11-19T16:17:50.173Z"
   },
   {
    "fonte": "Portal Zuk",
    "ok": true,
-   "imoveis": 652,
+   "imoveis": 650,
    "ultimaColetaOk": "2026-11-19T14:09:36.064Z",
    "naoColetadaAgora": true
   },
