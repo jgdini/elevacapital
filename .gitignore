@@ -10,3 +10,5 @@ node_modules/
 *.pdf
 *.docx
 .impeccable/
+# Exceção: a apresentação da proposta (feita por nós) é publicada de propósito.
+!apresentacaoeleva/plano-da-plataforma.pdf
