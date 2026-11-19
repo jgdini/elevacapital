@@ -20,5 +20,5 @@ body.com-demo{padding-bottom:76px}
 .btn.ouro,.btn.marca{position:relative;overflow:hidden;isolation:isolate}
 .btn.ouro::before,.btn.marca::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-120%);transition:transform .7s cubic-bezier(.2,.7,.2,1)}
 .btn.ouro:hover::before,.btn.marca:hover::before{transform:translateX(120%)}
-.btn.ouro:hover{box-shadow:0 10px 26px rgba(200,160,74,.35)}
+.btn.ouro:hover{box-shadow:0 10px 24px rgba(14,26,43,.28)}
 @media (prefers-reduced-motion:reduce){.card::after,.op-card::after,.pacote::after,.kpi::after,.plano::after,.btn.ouro::before,.btn.marca::before{display:none}}
