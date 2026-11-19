@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
 <style>
 :root{
   --navy:#0E1A2B; --navy-2:#16263D; --gold:#C8A04A; --gold-esc:#8A6A1F; --gold-claro:#F3E7C9;
@@ -106,6 +107,8 @@ dialog::backdrop{background:rgba(14,26,43,.55);backdrop-filter:blur(4px)}
 .fato b{font-size:15px}
 .calc{border:1px solid var(--linha);border-radius:14px;padding:16px;background:linear-gradient(180deg,#FFFDF8,#FFF)}
 .calc h4{margin:0 0 4px;font-size:15px}
+.calc.trava{background:var(--gold-claro);border-color:#E8D6A8}
+.calc.trava .acoes{margin-top:10px}
 .calc p.dica{margin:0 0 12px;font-size:13px;color:var(--suave)}
 .perfis{display:flex;gap:6px;margin-bottom:12px}
 .perfis .chip{height:32px;font-size:13px}
@@ -240,8 +243,14 @@ footer p{margin:0;max-width:720px;line-height:1.55}
   </div>
 </footer>
 
+<script src="comum.js"></script>
 <script>
+{ // bloco próprio: os nomes abaixo não colidem com os de comum.js
 const $ = (s) => document.querySelector(s);
+// Demonstração da assinatura: ?ver=assinante libera edital, leiloeiro e calculadora; ?ver=visitante trava.
+const VER = new URLSearchParams(location.search).get('ver');
+if (VER) definirAssinante(VER === 'assinante');
+const ASS = ehAssinante();
 const brl = (v) => v == null ? '–' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 const curto = (v) => v >= 1e6 ? 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : v >= 1e3 ? 'R$ ' + Math.round(v / 1e3) + ' mil' : brl(v);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -331,9 +340,14 @@ function abrir(id) {
         <div class="fato"><small>${x.av ? 'Avaliação' : '1ª praça'}</small><b>${brl(x.av || x.p1)}</b></div>
         ${x.p2 ? `<div class="fato"><small>2ª praça</small><b>${brl(x.p2)}</b></div>` : ''}
         <div class="fato"><small>Ocupação</small><b>${esc(x.oc || 'Ver edital')}</b></div>
-        ${x.cm ? `<div class="fato" style="grid-column:1/-1"><small>Comitente</small><b>${esc(x.cm)}</b></div>` : ''}
+        ${x.cm && ASS ? `<div class="fato" style="grid-column:1/-1"><small>Comitente</small><b>${esc(x.cm)}</b></div>` : ''}
       </div>
-      <div class="calc">
+      ${ASS ? '' : `<div class="calc trava">
+        <h4>Edital, leiloeiro e calculadora são para assinantes</h4>
+        <p class="dica">Assinando, você vê o link do leilão, quem vende o imóvel e calcula o lance máximo com custos de comissão, ITBI e registro.</p>
+        <div class="acoes"><button class="btn ouro" type="button" id="assinar">Assinar por R$ 49/mês (simulação)</button><a class="btn linha" href="comprar/">Prefiro receber imóveis já analisados</a></div>
+      </div>`}
+      <div class="calc" ${ASS ? '' : 'hidden'}>
         <h4>Qual o lance máximo?</h4>
         <p class="dica">Ajuste o valor de mercado e o retorno que você quer. A conta usa custos de leilão (comissão, ITBI, registro e outros).</p>
         <div class="perfis" role="group" aria-label="Perfil">${Object.keys(PERFIS).map((k) => `<button type="button" class="chip" data-perfil="${k}" aria-pressed="${k === 'Alvo'}">${k}</button>`).join('')}</div>
@@ -349,8 +363,8 @@ function abrir(id) {
         </div>
       </div>
       <div class="acoes">
-        <button class="btn ouro" type="button" id="pedir">Quero que a Eleva analise</button>
-        <a class="btn linha" href="${esc(x.url)}" target="_blank" rel="noopener">Ver no site do leilão (${esc(x.f)})</a>
+        <a class="btn ouro" href="comprar/">Quero que a Eleva analise</a>
+        ${ASS ? `<a class="btn linha" href="${esc(x.url)}" target="_blank" rel="noopener">Ver no site do leilão (${esc(x.f)})</a>` : ''}
       </div>
       <p class="aviso">${p ? p.txt + '. ' : ''}O valor de mercado sugerido é ${x.av ? 'a avaliação do edital' : 'o valor da 1ª praça'}; a análise da Eleva confirma o valor real, dívidas e ocupação.</p>
     </div>
@@ -373,7 +387,7 @@ function abrir(id) {
   }));
   dlg.querySelectorAll('.calc input').forEach((i) => i.addEventListener('input', calcular));
   dlg.querySelector('.fechar').addEventListener('click', () => dlg.close());
-  $('#pedir').addEventListener('click', () => avisar('No piloto, este botão abre o pedido de análise para a equipe da Eleva.'));
+  $('#assinar')?.addEventListener('click', () => { location.href = 'index.html?ver=assinante'; });
   calcular();
   dlg.showModal();
 }
@@ -424,6 +438,9 @@ $('#limpar').addEventListener('click', () => {
 });
 $('#mais').addEventListener('click', mostrarMais);
 $('#grade').addEventListener('click', (e) => { const c = e.target.closest('.card'); if (c) abrir(c.dataset.id); });
+$('.selo').textContent = ASS ? 'Assinante · acesso completo' : 'Visitante · edital e cálculo para assinantes';
+barraDemo(ASS ? 'assinante' : 'visitante');
+}
 </script>
 </body>
 </html>

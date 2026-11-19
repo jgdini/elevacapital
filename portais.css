@@ -1,0 +1,83 @@
+/* Portais com marca: imobiliária, área do cliente e loja. Usa os componentes de painel/estilo.css. */
+body{--marca:#0E1A2B;--marca-txt:#F5F2EA;--acento:#C8A04A}
+.portal-topo{background:var(--marca);color:var(--marca-txt);position:sticky;top:0;z-index:30}
+.portal-topo .wrap{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:18px;height:68px}
+.portal-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.01em;text-decoration:none;color:inherit}
+.portal-logo i{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-style:normal;font-size:14px;font-weight:800;border:1px solid rgba(255,255,255,.3)}
+.portal-topo .quem{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px;opacity:.92}
+.portal-topo .quem .avatar{background:rgba(255,255,255,.2);color:var(--marca-txt);border:1px solid rgba(255,255,255,.35)}
+.portal-abas{background:var(--branco);border-bottom:1px solid var(--linha);position:sticky;top:68px;z-index:25}
+.portal-abas .wrap{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.portal-abas .wrap::-webkit-scrollbar{display:none}
+.portal-abas a{padding:14px 14px 12px;font-weight:700;font-size:14px;color:var(--suave);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.portal-abas a.ativo{color:var(--tinta);border-color:var(--marca)}
+.portal-corpo{max-width:1200px;margin:0 auto;padding:26px 24px 40px;display:flex;flex-direction:column;gap:20px}
+.portal-corpo h2.saudacao{font-size:26px;font-weight:800}
+.portal-corpo p.sub{margin:4px 0 0;color:var(--suave)}
+.btn.marca{background:var(--marca);border-color:var(--marca);color:var(--marca-txt)}
+
+/* Oportunidades em card */
+.oport{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+.op-card{background:var(--branco);border:1px solid var(--linha);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s var(--ease),box-shadow .35s}
+.op-card:hover{transform:translateY(-4px);box-shadow:0 18px 36px rgba(14,26,43,.12)}
+.op-card .ft{position:relative;aspect-ratio:16/10;background:#E9E4D8;overflow:hidden}
+.op-card .ft img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
+.op-card:hover .ft img{transform:scale(1.05)}
+.op-card .ft .et{position:absolute;left:10px;top:10px}
+.op-card .ft .vidro{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--tinta)}
+.op-card .cp{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.op-card h4{font-size:16px;line-height:1.3}
+.op-card .nums{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.op-card .nums div{background:var(--fundo);border-radius:10px;padding:8px 10px}
+.op-card .nums small{display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--suave)}
+.op-card .nums b{font-size:16px}
+.op-card .acoes{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Linha do tempo das 8 etapas */
+.trilha{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:8px}
+.trilha span{height:8px;border-radius:4px;background:var(--linha)}
+.trilha span.feito{background:var(--marca)}
+.trilha span.agora{background:var(--acento)}
+.trilha-rot{display:flex;justify-content:space-between;font-size:12px;color:var(--suave);margin-top:6px}
+
+/* Card de WhatsApp com a marca */
+.wpp{background:#E7DED3;border-radius:16px;padding:18px;display:flex;justify-content:flex-end}
+.wpp .bolha{background:#DCF8C6;border-radius:12px 2px 12px 12px;max-width:380px;padding:6px;box-shadow:0 1px 1px rgba(0,0,0,.12)}
+.wpp .cartao-wpp{background:#fff;border-radius:9px;overflow:hidden}
+.wpp .cartao-wpp img{width:100%;height:170px;object-fit:cover;display:block;background:#E9E4D8}
+.wpp .cartao-wpp .faixa{background:var(--marca);color:var(--marca-txt);font-weight:800;font-size:13px;padding:8px 12px;display:flex;justify-content:space-between}
+.wpp .cartao-wpp .tx{padding:10px 12px;font-size:13px;line-height:1.45}
+.wpp .msg{font-size:14px;line-height:1.45;padding:8px 6px 2px;white-space:pre-line}
+
+/* Loja */
+.planos{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.plano{background:var(--branco);border:1px solid var(--linha);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left;transition:border-color .2s,box-shadow .2s,transform .2s}
+.plano:hover{transform:translateY(-2px)}
+.plano[aria-pressed="true"]{border-color:var(--marca);box-shadow:inset 0 0 0 1px var(--marca)}
+.plano small{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-esc)}
+.plano b{font-size:26px;font-weight:800}
+.plano span{font-size:13px;color:var(--suave);line-height:1.45}
+.plano .destaque{align-self:flex-start;font-size:11px;font-weight:800;background:var(--acento);color:var(--navy);border-radius:999px;padding:3px 9px;letter-spacing:.04em}
+.form-grade{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.chips-sel{display:flex;gap:6px;flex-wrap:wrap}
+.chips-sel label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--linha);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;background:var(--branco)}
+.chips-sel label:has(input:checked){background:var(--navy);border-color:var(--navy);color:#F5F2EA}
+.chips-sel label,.horarios label{position:relative}
+.chips-sel input,.horarios input{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.horarios{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.horarios label{border:1px solid var(--linha);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:14px;font-weight:600;background:var(--branco)}
+.horarios label:has(input:checked){border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+.ok-grande{text-align:center;padding:30px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ok-grande .circ{width:64px;height:64px;border-radius:50%;background:var(--verde-claro);color:var(--verde);display:grid;place-items:center}
+
+.portal-rodape{max-width:1200px;margin:0 auto;padding:10px 24px 30px;font-size:12px;color:var(--suave);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.portal-rodape .halo-nome{color:var(--tinta)}
+
+@media (max-width:820px){
+  .portal-topo .wrap{padding:0 16px;height:60px}
+  .portal-topo .quem span{display:none}
+  .portal-abas{top:60px}
+  .portal-corpo{padding:18px 16px 30px}
+  .planos,.form-grade{grid-template-columns:1fr}
+  .trilha-rot span:not(:first-child):not(:last-child){display:none}
+}

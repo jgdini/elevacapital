@@ -1,138 +1,4 @@
-// Protótipo do painel da Eleva. Imóveis vêm da coleta real (../dados.json);
-// clientes, imobiliárias, pacotes e operações são fictícios e ficam salvos só neste navegador.
-
-const $ = (s, el = document) => el.querySelector(s);
-const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const brl = (v) => (v == null || !Number.isFinite(v) ? '–' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }));
-const curto = (v) => (v >= 1e6 ? 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : v >= 1e3 ? 'R$ ' + Math.round(v / 1e3) + ' mil' : brl(v));
-const pct = (v, casas = 1) => (Number.isFinite(v) ? (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: casas }) + '%' : '–');
-const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-const area = (a) => (a == null ? null : a >= 10000 ? (a / 10000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' ha' : a.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + ' m²');
-const dataCurta = (iso) => (iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '–');
-const dias = (iso) => (iso ? Math.floor((new Date(iso) - Date.now()) / 864e5) : null);
-const numero = (s) => +String(s).replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.') || 0;
-const local = (x) => [x.b, x.c && x.u ? `${x.c}/${x.u}` : x.c].filter(Boolean).join(' · ');
-const foto = (x, cls = 'miniimg') => (x?.img ? `<img class="${cls}" src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : `<div class="${cls}"></div>`);
-
-const ICONES = {
-  inicio: '<path d="M3 11.5 12 4l9 7.5M5 10v10h14V10"/>',
-  imoveis: '<path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6"/>',
-  analises: '<path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/>',
-  entregas: '<path d="M3 7h13v10H3zM16 10h3l2 3v4h-5"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/>',
-  operacoes: '<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/>',
-  clientes: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3 3 0 0 1 0 6M21 20c0-2.6-1.6-4.8-4-5.6"/>',
-  financeiro: '<path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/>',
-  agenda: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
-  fontes: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/>',
-};
-const ico = (n, t = 18) => `<svg width="${t}" height="${t}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[n]}</svg>`;
-
-// ---------------------------------------------------------------- dados
-let IMOVEIS = [], POR_ID = new Map(), COLETA = null;
-const ETAPAS = ['Alinhamento', 'Perfil e objetivos', 'Busca de imóveis', 'Análise financeira', 'Viabilidade jurídica', 'Disputa e arrematação', 'Registro e desocupação', 'Orientação para venda'];
-const CHECKLIST = [
-  ['Matrícula atualizada', 'Proprietário, ônus, penhoras e averbações'],
-  ['Edital conferido', 'Praças, comissão, forma de pagamento e regras do leiloeiro'],
-  ['Processo judicial', 'Fase, recursos pendentes e risco de anulação'],
-  ['Débitos de IPTU', 'Valor e quem paga depois da arrematação'],
-  ['Débitos de condomínio', 'Valor e quem paga depois da arrematação'],
-  ['Ocupação', 'Ocupado ou desocupado, por quem, e caminho para desocupar'],
-  ['Localização e vistoria externa', 'Rua, entorno, fotos e estado aparente'],
-  ['Valor de mercado confirmado', 'Comparáveis da região ou validação do corretor parceiro'],
-];
-const PARECERES = { rec: ['Recomendo', 'verde'], res: ['Recomendo com ressalvas', 'amb'], nao: ['Não recomendo', 'verm'] };
-
-const CHAVE = 'eleva-painel-prototipo-v1';
-let E = null; // estado salvo
-
-function semente() {
-  // Escolhe imóveis reais com foto, área e prazo para montar o exemplo.
-  const bons = IMOVEIS.filter((x) => x.img && x.a && x.c && dias(x.e) >= 3 && ['Apartamento', 'Casa', 'Comercial', 'Terreno'].includes(x.tp));
-  const pega = (f, n, usados = new Set()) => bons.filter((x) => f(x) && !usados.has(x.id)).slice(0, n);
-  const usados = new Set();
-  const marca = (arr) => (arr.forEach((x) => usados.add(x.id)), arr);
-  const aptoSP = marca(pega((x) => x.tp === 'Apartamento' && x.u === 'SP' && x.l < 600000, 4, usados));
-  const casaMG = marca(pega((x) => x.tp === 'Casa' && x.u === 'MG' && x.l < 500000, 3, usados));
-  const terrGO = marca(pega((x) => x.tp === 'Terreno' && x.u === 'GO' && x.l < 200000, 7, usados));
-  const salaSP = marca(pega((x) => x.tp === 'Comercial' && x.u === 'SP' && x.l < 400000, 3, usados));
-  const outros = marca(pega((x) => x.l < 900000, 10, usados));
-  const id = (arr, i) => arr[i]?.id || outros[i % outros.length]?.id;
-
-  const imobiliarias = [
-    { id: 'silva', nome: 'Imobiliária Silva', cidade: 'Belo Horizonte/MG', corretores: 4, desde: '2026-08-12', cor: '#7A1F2B', dominio: 'leiloes.imobiliariasilva.com.br' },
-    { id: 'horizonte', nome: 'Horizonte Imóveis', cidade: 'São Paulo/SP', corretores: 7, desde: '2026-09-03', cor: '#1F4E79', dominio: 'horizonteimoveis.com.br/leilao' },
-    { id: 'casanova', nome: 'Casa Nova Negócios', cidade: 'Goiânia/GO', corretores: 2, desde: '2026-10-20', cor: '#2E6B3F', dominio: 'casanova.eleva.app' },
-  ];
-  const clientes = [
-    { id: 'paulo', nome: 'Dr. Paulo Mendes', via: 'silva', capital: 450000, uf: 'MG', tipos: ['Casa', 'Apartamento'], objetivo: 'Revenda', prazo: 12 },
-    { id: 'marina', nome: 'Marina Souza', via: null, capital: 400000, uf: 'SP', tipos: ['Comercial'], objetivo: 'Aluguel', prazo: 24 },
-    { id: 'grupor', nome: 'Grupo R. Participações', via: 'horizonte', capital: 1200000, uf: 'SP', tipos: ['Apartamento'], objetivo: 'Revenda', prazo: 18 },
-    { id: 'carlos', nome: 'Carlos Teixeira', via: null, capital: 200000, uf: 'GO', tipos: ['Terreno'], objetivo: 'Revenda', prazo: 24 },
-    { id: 'fernanda', nome: 'Fernanda Lima', via: 'casanova', capital: 250000, uf: 'GO', tipos: ['Terreno', 'Casa'], objetivo: 'Construir e vender', prazo: 24 },
-    { id: 'rafael', nome: 'Rafael Costa', via: null, capital: 600000, uf: 'SP', tipos: ['Apartamento'], objetivo: 'Aluguel', prazo: 36 },
-  ];
-  const pacotes = [
-    { id: 'p1', cliente: 'marina', tipo: 'Pacote 5 oportunidades', preco: 1500, total: 5, entregues: salaSP.slice(0, 2).map((x) => x.id), comprado: '2026-11-10', prazoEntrega: '2026-11-28' },
-    { id: 'p2', cliente: 'carlos', tipo: 'Pacote 10 oportunidades', preco: null, total: 10, entregues: terrGO.slice(0, 6).map((x) => x.id), comprado: '2026-11-02', prazoEntrega: '2026-11-30' },
-    { id: 'p3', cliente: 'rafael', tipo: 'Oportunidade avulsa', preco: 200, total: 1, entregues: [], comprado: '2026-11-18', prazoEntrega: '2026-11-21' },
-    { id: 'p4', cliente: 'paulo', tipo: 'Curadoria da imobiliária', preco: 0, total: 3, entregues: casaMG.slice(0, 2).map((x) => x.id), comprado: '2026-11-05', prazoEntrega: '2026-11-25' },
-  ];
-  const nova = (imovel, analista, status, parecer, preench) => ({
-    id: 'a-' + imovel, imovel, analista, status, criada: new Date(Date.now() - 864e5 * (status === 'Concluída' ? 6 : 1)).toISOString(),
-    checklist: CHECKLIST.map((_, i) => ({ s: i < preench ? (i === 3 && parecer === 'res' ? 'at' : 'ok') : '', nota: i === 3 && parecer === 'res' ? 'IPTU em aberto de R$ 8.400; edital diz que fica com o arrematante.' : '' })),
-    custos: null, parecer, texto: parecer === 'rec' ? 'Imóvel com matrícula limpa, desocupado e preço abaixo dos comparáveis da região. Lance até o limite indicado mantém retorno acima de 25%.' : parecer === 'res' ? 'Boa localização e desconto relevante, mas há IPTU em aberto que fica com o arrematante. Recomendo considerar o débito no lance.' : '',
-  });
-  const analises = [
-    nova(id(casaMG, 0), 'Antonio', 'Concluída', 'rec', 8),
-    nova(id(salaSP, 0), 'Beatriz', 'Concluída', 'res', 8),
-    nova(id(aptoSP, 0), 'Antonio', 'Em análise', '', 5),
-    nova(id(aptoSP, 1), 'Beatriz', 'Em análise', '', 2),
-    nova(id(terrGO, 6), 'Antonio', 'Em análise', '', 1),
-  ];
-  const op = (imovel, cliente, etapa, resp, prazo) => ({ id: 'o-' + imovel + etapa, imovel, cliente, etapa, resp, prazo });
-  const operacoes = [
-    op(id(outros, 0), 'grupor', 0, 'Antonio', '2026-11-22'),
-    op(id(outros, 1), 'rafael', 1, 'Beatriz', '2026-11-24'),
-    op(id(aptoSP, 2), 'grupor', 2, 'Antonio', '2026-11-26'),
-    op(id(aptoSP, 0), 'grupor', 3, 'Beatriz', '2026-11-21'),
-    op(id(casaMG, 1), 'paulo', 4, 'Antonio', '2026-11-23'),
-    op(id(casaMG, 0), 'paulo', 5, 'Antonio', '2026-11-27'),
-    op(id(outros, 2), 'fernanda', 6, 'Beatriz', '2026-12-10'),
-    op(id(outros, 3), 'marina', 7, 'Antonio', '2027-01-15'),
-  ];
-  return { imobiliarias, clientes, pacotes, analises, operacoes, extrasFontes: [] };
-}
-
-function salvar() { try { localStorage.setItem(CHAVE, JSON.stringify(E)); } catch {} }
-function carregarEstado() {
-  try { const s = JSON.parse(localStorage.getItem(CHAVE)); if (s && s.analises?.every((a) => POR_ID.has(a.imovel))) return s; } catch {}
-  return semente();
-}
-const cliente = (id) => E.clientes.find((c) => c.id === id);
-const imob = (id) => E.imobiliarias.find((i) => i.id === id);
-const analiseDe = (imovelId) => E.analises.find((a) => a.imovel === imovelId);
-const combina = (c) => IMOVEIS.filter((x) => x.u === c.uf && c.tipos.includes(x.tp) && x.l <= c.capital && dias(x.e) >= 0);
-
-// ---------------------------------------------------------------- cálculo
-function custosPadrao(x) {
-  const reformaM2 = x.tp === 'Terreno' || x.tp === 'Rural' ? 0 : 350;
-  return { mercado: Math.round(x.av || x.p1 || x.l), lance: Math.round(x.l), comissao: 5, itbi: 3, registro: 1.5, dividas: 0, desocupacao: x.oc === 'Ocupado' ? 15000 : 0, reforma: Math.round(Math.min(x.a || 0, 400) * reformaM2), corretagem: 6, prazo: 12, cdi: 1 };
-}
-function calcular(k) {
-  const c = (k.comissao + k.itbi + k.registro) / 100;
-  const fixos = k.dividas + k.desocupacao + k.reforma;
-  const vendaLiq = k.mercado * (1 - k.corretagem / 100);
-  const custo = k.lance * (1 + c) + fixos;
-  const bruto = vendaLiq - custo;
-  const ir = Math.max(0, bruto) * 0.15;
-  const lucro = bruto - ir;
-  const roi = custo ? lucro / custo : 0;
-  const tir = custo && custo + lucro > 0 ? Math.pow((custo + lucro) / custo, 1 / Math.max(1, k.prazo)) - 1 : -1;
-  const vpl = (custo + lucro) / Math.pow(1 + k.cdi / 100, k.prazo) - custo;
-  const maxPara = (r) => Math.max(0, ((0.85 * vendaLiq) / (r + 0.85) - fixos) / (1 + c));
-  return { custo, vendaLiq, lucro, ir, roi, tir, vpl, perfis: { Conservador: maxPara(0.35), Alvo: maxPara(0.25), Agressivo: maxPara(0.15) } };
-}
+// Painel da equipe Eleva (protótipo). Usa ../comum.js para dados, estado e cálculos.
 
 // ---------------------------------------------------------------- telas
 const TELAS = [
@@ -157,7 +23,10 @@ function telaInicio() {
   const faltam = pend.reduce((s, p) => s + p.total - p.entregues.length, 0);
   const andamento = E.analises.filter((a) => a.status !== 'Concluída');
   const tarefas = [
-    ...pend.map((p) => ({ ic: 'entregas', cor: 'var(--gold-claro)', t: `${cliente(p.cliente).nome}: faltam ${p.total - p.entregues.length} de ${p.total}`, s: `${p.tipo} · entregar até ${dataCurta(p.prazoEntrega)}`, et: dias(p.prazoEntrega) <= 3 ? ['Urgente', 'verm'] : ['Pacote', 'ouro'], href: '#/entregas' })),
+    // O que chega dos outros portais: lances aprovados pelos clientes e consultorias pagas.
+    ...E.aprovacoes.map((a) => { const x = POR_ID.get(a.imovel); const c = cliente(a.cliente); return { ic: 'operacoes', cor: 'var(--verde-claro)', t: `${c.nome} aprovou lance até ${brl(a.limite)}`, s: `${x.t} · ${local(x)} · leilão ${dataCurta(x.e)}`, et: ['Lance aprovado', 'verde'], href: '#/operacoes' }; }),
+    ...E.consultorias.map((k) => ({ ic: 'agenda', cor: 'var(--gold-claro)', t: `Consultoria paga: ${k.nome}`, s: `${k.formato} · ${k.quando}`, et: ['Nova', 'ouro'], href: '#/agenda' })),
+    ...[...pend].sort((x, y) => (y.novo ? 1 : 0) - (x.novo ? 1 : 0)).map((p) => ({ ic: 'entregas', cor: 'var(--gold-claro)', t: `${cliente(p.cliente).nome}: faltam ${p.total - p.entregues.length} de ${p.total}`, s: `${p.tipo} · entregar até ${dataCurta(p.prazoEntrega)}`, et: p.novo ? ['Compra nova', 'verde'] : dias(p.prazoEntrega) <= 3 ? ['Urgente', 'verm'] : ['Pacote', 'ouro'], href: '#/entregas' })),
     ...andamento.map((a) => { const x = POR_ID.get(a.imovel); return { ic: 'analises', cor: 'var(--azul-claro)', t: `Análise: ${x.t}`, s: `${local(x)} · ${a.analista} · encerra ${dataCurta(x.e)}`, et: ['Em análise', 'azul'], href: '#/analise/' + a.imovel }; }),
     ...E.operacoes.filter((o) => dias(o.prazo) <= 3).map((o) => ({ ic: 'operacoes', cor: 'var(--verm-claro)', t: `${ETAPAS[o.etapa]}: ${cliente(o.cliente).nome}`, s: `${POR_ID.get(o.imovel).t} · prazo ${dataCurta(o.prazo)}`, et: ['Prazo', 'verm'], href: '#/operacoes' })),
   ];
@@ -301,18 +170,18 @@ function telaAnalise(imovelId) {
 }
 
 function modalEntregar(imovelId) {
+  if (analiseDe(imovelId)?.status !== 'Concluída') return avisar('Conclua a análise (aba Parecer) antes de entregar ao cliente.');
   const m = $('#modal');
   const destinos = E.pacotes.filter((p) => p.entregues.length < p.total && !p.entregues.includes(imovelId));
   m.innerHTML = `<form class="modal" method="dialog"><h3>Entregar esta análise</h3><p class="cinza" style="margin:0">O cliente recebe o imóvel com a análise na área dele. Para cliente de imobiliária, o card sai com a marca da imobiliária.</p>
   ${destinos.map((p, i) => { const c = cliente(p.cliente); return `<label class="opcao"><input type="radio" name="d" value="${p.id}" ${i ? '' : 'checked'}><span><b>${esc(c.nome)}</b><br><span class="cinza">${esc(p.tipo)} · ${p.entregues.length} de ${p.total} entregues${c.via ? ' · via ' + esc(imob(c.via).nome) : ''}</span></span></label>`; }).join('') || '<p>Nenhum pacote com vaga para este imóvel.</p>'}
   <div class="acoes"><button class="btn" value="cancelar">Cancelar</button>${destinos.length ? '<button class="btn ouro" value="ok">Entregar</button>' : ''}</div></form>`;
-  m.onclose = () => {
-    if (m.returnValue !== 'ok') return;
+  aoConfirmar(m, () => {
     const p = E.pacotes.find((x) => x.id === $('input[name=d]:checked', m)?.value);
-    if (!p) return;
+    if (!p || p.entregues.includes(imovelId) || p.entregues.length >= p.total) return;
     p.entregues.push(imovelId); salvar(); menu('analises');
     avisar(`Entregue para ${cliente(p.cliente).nome} (${p.entregues.length} de ${p.total}).`);
-  };
+  });
   m.showModal();
 }
 
@@ -386,6 +255,7 @@ function telaAgenda() {
   const diasSem = ['Seg 24', 'Ter 25', 'Qua 26', 'Qui 27', 'Sex 28'];
   const horas = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
   const ev = { '0-1': ['Marina Souza', '1 hora · dúvidas sobre sala comercial'], '1-3': ['Rafael Costa', '30 min · antes do lance'], '2-0': ['Livre'], '2-4': ['Lucas Andrade', '1 hora · primeira compra'], '3-2': ['Livre'], '4-1': ['Carlos Teixeira', 'Pacote 3 horas · sessão 2 de 3'] };
+  for (const k of E.consultorias) ev[k.slot] = [k.nome, k.formato + ' · pago pela loja'];
   $('#tela').innerHTML = `<div class="caixa entra"><h3>Semana de 24 a 28 de novembro <small>clientes fictícios</small></h3><div class="semana"><div class="cab"></div>${diasSem.map((d) => `<div class="cab">${d}</div>`).join('')}
   ${horas.map((h, hi) => `<div class="hora">${h}</div>${diasSem.map((_, di) => { const e = ev[`${di}-${hi}`]; return `<div>${e ? (e[0] === 'Livre' ? '<div class="evento livre">Horário livre</div>' : `<div class="evento">${esc(e[0])}<br><span class="cinza">${esc(e[1])}</span></div>`) : ''}</div>`; }).join('')}`).join('')}
   </div></div>
@@ -408,14 +278,13 @@ function telaFontes() {
     m.innerHTML = `<form class="modal" method="dialog"><h3>Adicionar site de leilão</h3><div class="campo"><label for="url-fonte">Endereço do site</label><input id="url-fonte" placeholder="www.leiloeiroexemplo.com.br" required></div><p class="cinza" id="det-fonte" style="margin:0">Cole o endereço: o sistema identifica a plataforma.</p><div class="acoes"><button class="btn" value="cancelar" formnovalidate>Cancelar</button><button class="btn ouro" value="ok">Adicionar</button></div></form>`;
     const conhecidas = /leiloesjudiciais|megaleiloes|lancejudicial|grupolance|portalzuk|e-leiloes|suporteleiloes|leilao\.?pro|spl/i;
     $('#url-fonte', m).addEventListener('input', (e) => { const v = e.target.value; $('#det-fonte', m).textContent = !v ? 'Cole o endereço: o sistema identifica a plataforma.' : conhecidas.test(v) ? 'Plataforma reconhecida: entra na próxima coleta.' : 'Plataforma nova: fica aguardando a criação do coletor.'; });
-    m.onclose = () => {
-      if (m.returnValue !== 'ok') return;
+    aoConfirmar(m, () => {
       const v = $('#url-fonte', m).value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
       if (!v) return;
       const ok = conhecidas.test(v);
       E.extrasFontes.push({ f: v, n: 0, tipo: ok ? 'Plataforma conhecida' : 'Plataforma nova', st: ok ? ['Entra na próxima coleta', 'azul'] : ['Aguardando coletor', 'amb'] });
       salvar(); telaFontes();
-    };
+    });
     m.showModal();
   });
 }
@@ -460,15 +329,9 @@ function rota() {
   ({ inicio: telaInicio, imoveis: () => telaImoveis(params), analises: telaAnalises, analise: () => telaAnalise(decodeURIComponent(arg || '')), entregas: telaEntregas, operacoes: telaOperacoes, clientes: telaClientes, financeiro: telaFinanceiro, agenda: telaAgenda, fontes: telaFontes, relatorio: () => telaRelatorio(decodeURIComponent(arg || '')) }[t] || telaInicio)();
 }
 
-let tmr;
-function avisar(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(tmr); tmr = setTimeout(() => t.classList.remove('on'), 3400); }
 
-fetch('../dados.json').then((r) => r.json()).then((d) => {
-  COLETA = d.geradoEm;
-  IMOVEIS = d.imoveis.map((x) => ({ ...x, _busca: norm([x.t, x.o, x.tp, x.b, x.c, x.u].join(' ')) }));
-  POR_ID = new Map(IMOVEIS.map((x) => [x.id, x]));
-  E = carregarEstado();
-  salvar();
+carregarBase('../dados.json').then(() => {
   addEventListener('hashchange', rota);
   rota();
+  barraDemo('painel', '../');
 }).catch(() => { $('#titulo').textContent = 'Não foi possível carregar os imóveis.'; });
