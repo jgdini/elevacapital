@@ -9,3 +9,16 @@
 body.com-demo{padding-bottom:76px}
 @media print{.demo-barra{display:none}}
 .com-demo .toast{bottom:84px}
+
+/* ---------- Efeitos premium comuns ---------- */
+/* Luz que segue o mouse nos cards (as variáveis --mx/--my vêm do comum.js). */
+.card,.op-card,.pacote,.kpi,.plano{position:relative}
+.card::after,.op-card::after,.pacote::after,.kpi::after,.plano::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(380px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.16),transparent 45%)}
+.card:hover::after,.op-card:hover::after,.pacote:hover::after,.kpi:hover::after,.plano:hover::after{opacity:1}
+.tema-adm .kpi::after,.tema-adm .pacote::after{background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),rgba(231,201,138,.16),transparent 45%)}
+/* Brilho que atravessa os botões principais no hover (uma passada, sem loop). */
+.btn.ouro,.btn.marca{position:relative;overflow:hidden;isolation:isolate}
+.btn.ouro::before,.btn.marca::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-120%);transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.btn.ouro:hover::before,.btn.marca:hover::before{transform:translateX(120%)}
+.btn.ouro:hover{box-shadow:0 10px 26px rgba(200,160,74,.35)}
+@media (prefers-reduced-motion:reduce){.card::after,.op-card::after,.pacote::after,.kpi::after,.plano::after,.btn.ouro::before,.btn.marca::before{display:none}}

@@ -206,3 +206,22 @@ function barraDemo(atual, raiz = '') {
 function aoConfirmar(dlg, fn) {
   dlg.querySelector('form').addEventListener('submit', (e) => { if (e.submitter?.value === 'ok') fn(); });
 }
+
+// Inclinação 3D leve e luz que segue o mouse nos cards (só mouse; desligado com "reduzir movimento").
+(function efeitosPremium() {
+  const SEL = '.card, .op-card, .pacote, .kpi, .plano';
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  let atual = null;
+  document.addEventListener('pointermove', (e) => {
+    const el = e.target.closest?.(SEL);
+    if (atual && atual !== el) { atual.style.transform = ''; atual = null; }
+    if (!el) return;
+    atual = el;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    el.style.setProperty('--mx', `${x * 100}%`);
+    el.style.setProperty('--my', `${y * 100}%`);
+    el.style.transform = `perspective(900px) rotateX(${(0.5 - y) * 5}deg) rotateY(${(x - 0.5) * 6}deg) translateY(-4px)`;
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => { if (atual) atual.style.transform = ''; atual = null; }, true);
+})();

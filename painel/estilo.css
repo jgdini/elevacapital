@@ -261,3 +261,65 @@ dialog::backdrop{background:rgba(14,26,43,.5);backdrop-filter:blur(3px)}
   .relatorio{border:0;box-shadow:none;max-width:none;padding:0}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ================= Tema do painel de administração: azul-escuro, dourado e vidro ================= */
+body.tema-adm{
+  --fundo:#0A1422; --branco:rgba(255,255,255,.05); --tinta:#EAF0F7; --suave:#93A4BA; --linha:rgba(255,255,255,.1); --linha-2:rgba(255,255,255,.06);
+  --gold-claro:rgba(200,160,74,.16); --gold-esc:#E2C37A;
+  --verde:#74D6A4; --verde-claro:rgba(46,160,103,.18); --verm:#F4A196; --verm-claro:rgba(214,80,64,.2);
+  --amb:#F0C366; --amb-claro:rgba(232,170,40,.17); --azul:#A4BFF4; --azul-claro:rgba(80,130,220,.2);
+  background:
+    radial-gradient(1100px 560px at 88% -12%, rgba(200,160,74,.16), transparent 60%),
+    radial-gradient(900px 520px at -8% 108%, rgba(45,93,168,.22), transparent 62%),
+    #0A1422;
+  background-attachment:fixed;
+  color:var(--tinta);
+}
+.tema-adm .lado{background:rgba(6,13,24,.72);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);border-right:1px solid rgba(200,160,74,.18)}
+.tema-adm .menu a.ativo{background:linear-gradient(90deg,rgba(200,160,74,.24),rgba(200,160,74,.05));color:#fff;box-shadow:inset 0 0 0 1px rgba(200,160,74,.38)}
+.tema-adm .menu a:hover{background:rgba(255,255,255,.06)}
+.tema-adm .barra{background:rgba(10,20,34,.66);border-bottom:1px solid rgba(255,255,255,.07)}
+.tema-adm .barra h1{background:linear-gradient(90deg,#F5F2EA 30%,#E7C98A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tema-adm .aviso-proto{background:rgba(200,160,74,.14);border-color:rgba(200,160,74,.38);color:#E7C98A}
+.tema-adm .caixa,.tema-adm .kpi,.tema-adm .pacote{
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.09);
+  backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);
+  box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.tema-adm .kpi:hover,.tema-adm .pacote:hover{border-color:rgba(200,160,74,.45);box-shadow:0 18px 40px rgba(0,0,0,.34),0 0 0 1px rgba(200,160,74,.25),inset 0 1px 0 rgba(255,255,255,.08)}
+.tema-adm .kpi.escuro{background:linear-gradient(140deg,rgba(200,160,74,.28),rgba(200,160,74,.06) 60%);border-color:rgba(200,160,74,.45)}
+.tema-adm .kpi.escuro b{color:#F1D58F}
+.tema-adm .kpi.escuro small,.tema-adm .kpi.escuro span{color:#D6C59C}
+.tema-adm .tabela tr.click:hover,.tema-adm .tarefa:hover{background:rgba(255,255,255,.045)}
+.tema-adm .btn{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:var(--tinta)}
+.tema-adm .btn:hover{border-color:rgba(200,160,74,.55)}
+.tema-adm .btn.ouro{background:linear-gradient(135deg,#E2C072,#B88E36);border-color:transparent;color:#0E1A2B}
+.tema-adm .btn.navy{background:transparent;border-color:rgba(200,160,74,.6);color:#E7C98A}
+.tema-adm .campo input,.tema-adm .campo select,.tema-adm .campo textarea,.tema-adm .filtro input,.tema-adm .filtro select,.tema-adm .check input{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:var(--tinta)}
+.tema-adm option{background:#13233A;color:#EAF0F7}
+.tema-adm .et{background:rgba(255,255,255,.08)}
+.tema-adm .et.navy{background:rgba(200,160,74,.2);color:#F1D58F}
+.tema-adm .funil i,.tema-adm .progresso i{background:linear-gradient(90deg,#B88E36,#E7C98A)}
+.tema-adm .progresso{background:rgba(255,255,255,.08)}
+.tema-adm .abas button[aria-selected="true"]{color:#fff}
+.tema-adm .seg button{background:transparent}
+.tema-adm .resumo-calc div,.tema-adm .fatos div{background:transparent}
+.tema-adm .resumo-calc div{background:rgba(255,255,255,.05)}
+.tema-adm .resumo-calc .max{background:linear-gradient(140deg,#1D3150,#0E1A2B);box-shadow:inset 0 0 0 1px rgba(200,160,74,.4)}
+.tema-adm .parecer-opcoes button,.tema-adm .anexo{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)}
+.tema-adm .parecer-opcoes button[aria-pressed="true"]{border-color:#C8A04A;box-shadow:inset 0 0 0 1px #C8A04A}
+.tema-adm .coluna{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.tema-adm .cartao{background:rgba(22,38,61,.92);border:1px solid rgba(255,255,255,.08);box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.tema-adm .cartao:hover{border-color:rgba(200,160,74,.5)}
+.tema-adm .semana{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+.tema-adm .semana .cab{background:rgba(255,255,255,.05)}
+.tema-adm .evento{background:rgba(200,160,74,.16);border-color:rgba(200,160,74,.4)}
+.tema-adm .miniimg,.tema-adm .cab-imovel .semfoto{background:rgba(255,255,255,.06)}
+.tema-adm dialog{background:#12223A;color:var(--tinta);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(200,160,74,.3)}
+.tema-adm .opcao{border-color:rgba(255,255,255,.12)}
+.tema-adm .opcao:has(input:checked){border-color:#C8A04A;box-shadow:inset 0 0 0 1px #C8A04A}
+/* O relatório continua papel branco (é o documento que vai para o cliente). */
+.tema-adm .relatorio{--tinta:#1B2433;--suave:#5B6472;--linha:#E4DFD3;--linha-2:#EFEBE2;--gold-esc:#8A6A1F;--verde:#1F7A4D;--verde-claro:#E2F2E8;--amb:#9A6B0E;--amb-claro:#FBF0D8;--verm:#A3352B;--verm-claro:#F8E5E2;--azul:#2D5DA8;--azul-claro:#E5EDF9;background:#fff;color:var(--tinta);border-color:transparent;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+.tema-adm .relatorio .et{background:var(--linha-2)}
+@media print{body.tema-adm{background:#fff}}
