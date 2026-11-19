@@ -1,0 +1,11 @@
+# Dados brutos da coleta: gerados a cada execução, não vão para o site.
+coleta/data/
+node_modules/
+# Material do cliente (áudio, apresentação) nunca entra neste repositório público.
+*.ogg
+*.opus
+*.mp3
+*.m4a
+*.pptx
+*.pdf
+*.docx

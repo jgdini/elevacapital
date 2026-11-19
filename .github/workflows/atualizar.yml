@@ -1,0 +1,48 @@
+name: Atualizar vitrine
+
+# Coleta diária dos imóveis de leilão (5 fontes) e publicação no GitHub Pages.
+# Roda todo dia às 06:00 de Brasília (09:00 UTC). Para rodar na hora: aba Actions → "Atualizar vitrine" → Run workflow.
+# Se alguma fonte falhar, a vitrine é publicada mesmo assim (com os imóveis dessa fonte da coleta anterior)
+# e a execução fica vermelha; o GitHub manda e-mail de falha para o dono do repositório.
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/atualizar.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atualizar-vitrine
+  cancel-in-progress: false
+
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Coletar (5 fontes)
+        run: node coleta/run.js
+      - name: Gerar dados.json
+        id: gerar
+        continue-on-error: true
+        run: node gerar-dados.mjs
+      - name: Publicar
+        run: |
+          git config user.name "eleva-bot"
+          git config user.email "eleva-bot@users.noreply.github.com"
+          git add dados.json status.json
+          git diff --cached --quiet && echo "sem mudanças" && exit 0
+          git commit -m "dados: $(date -u +'%Y-%m-%d %H:%M') UTC"
+          git push
+      - name: Resultado
+        run: |
+          cat status.json
+          test "${{ steps.gerar.outcome }}" = "success" || { echo "::error::Alguma fonte falhou ou o total caiu demais. Veja status.json e o log acima."; exit 1; }

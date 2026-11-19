@@ -1,0 +1,13 @@
+{
+  "name": "leilao-imoveis-coleta",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Coleta de imóveis de leilão (piloto Eleva Capital), baseada na coleta do Veículo Judicial.",
+  "scripts": {
+    "coletar": "node run.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

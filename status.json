@@ -1,0 +1,33 @@
+{
+ "quando": "2026-11-19T11:58:29.464Z",
+ "ok": true,
+ "publicado": true,
+ "total": 3355,
+ "fontes": [
+  {
+   "fonte": "Leilões Judiciais",
+   "ok": true,
+   "imoveis": 1859
+  },
+  {
+   "fonte": "Mega Leilões",
+   "ok": true,
+   "imoveis": 542
+  },
+  {
+   "fonte": "Lance Judicial",
+   "ok": true,
+   "imoveis": 293
+  },
+  {
+   "fonte": "Portal Zuk",
+   "ok": true,
+   "imoveis": 657
+  },
+  {
+   "fonte": "E-Leilões",
+   "ok": true,
+   "imoveis": 49
+  }
+ ]
+}
