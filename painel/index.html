@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Eleva · Protótipo</title>
+<meta name="description" content="Protótipo do painel de trabalho da Eleva Capital: análise de imóveis de leilão, entregas de pacotes, operações e parceiros.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<div class="app">
+  <aside class="lado">
+    <div class="marca"><i></i><div>ELEVA <span>CAPITAL</span><small>PAINEL DA EQUIPE</small></div></div>
+    <nav class="menu" id="menu" aria-label="Seções do painel"></nav>
+    <div class="usuario"><div class="avatar">AN</div><div><b>Antonio</b><small>Administrador</small></div></div>
+    <div class="credito">Desenvolvido por <a href="https://haloconsulting.com.br/" target="_blank" rel="noopener" class="halo-credit" aria-label="Halo Company"><svg viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" class="halo-sym"><g transform="rotate(-90 16 16)" fill="none" stroke-width="3.2" stroke-linecap="round"><circle cx="16" cy="16" r="11" pathLength="300" stroke="#E0506F" stroke-dasharray="86 214"/><circle cx="16" cy="16" r="11" pathLength="300" stroke="#E7C493" stroke-dasharray="86 214" stroke-dashoffset="-100"/><circle cx="16" cy="16" r="11" pathLength="300" stroke="#F8F3EB" stroke-dasharray="86 214" stroke-dashoffset="-200"/></g></svg><span class="halo-nome">halo <small>company</small></span></a></div>
+  </aside>
+  <div class="principal">
+    <div class="barra">
+      <div><div class="migalha" id="migalha">Painel</div><h1 id="titulo">Carregando…</h1></div>
+      <div class="direita" id="acoes-barra"><span class="aviso-proto">Protótipo · imóveis reais, clientes fictícios</span></div>
+    </div>
+    <main class="conteudo" id="tela"></main>
+  </div>
+</div>
+<dialog id="modal"></dialog>
+<div class="toast" id="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
