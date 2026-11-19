@@ -17,12 +17,12 @@ h1,h2,h3,h4{margin:0;letter-spacing:-.01em}
 .marca{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.14em;font-size:14px;color:#F5F2EA;padding:4px 8px 18px}
 .marca i{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--gold),#E7C98A)}
 .marca span{color:var(--gold)}
-.marca small{display:block;font-size:10px;letter-spacing:.2em;color:#7F90A6;font-weight:700;margin-top:2px}
+.marca small{display:block;font-size:11px;letter-spacing:.2em;color:#7F90A6;font-weight:700;margin-top:2px}
 .menu{display:flex;flex-direction:column;gap:2px}
 .menu a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;transition:background .2s,color .2s}
 .menu a svg{flex:none;opacity:.8}
 .menu a:hover{background:var(--navy-2);color:#fff}
-.menu a.ativo{background:var(--navy-3);color:#fff;box-shadow:inset 3px 0 0 var(--gold)}
+.menu a.ativo{background:var(--navy-3);color:#fff;box-shadow:inset 0 0 0 1px rgba(200,160,74,.45)}
 .menu a .n{margin-left:auto;font-size:11px;font-weight:700;background:var(--gold);color:var(--navy);border-radius:999px;padding:2px 7px}
 .menu .sep{height:1px;background:rgba(255,255,255,.08);margin:10px 6px}
 .usuario{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 8px 4px;border-top:1px solid rgba(255,255,255,.08)}
@@ -185,7 +185,7 @@ h1,h2,h3,h4{margin:0;letter-spacing:-.01em}
 .semana > div{border-right:1px solid var(--linha-2);border-bottom:1px solid var(--linha-2);min-height:54px;padding:6px;font-size:12px;position:relative}
 .semana .cab{background:#FAF8F3;font-weight:700;text-align:center;min-height:auto;padding:10px 6px}
 .semana .hora{color:var(--suave);text-align:right;padding-right:8px}
-.evento{background:var(--gold-claro);border-left:3px solid var(--gold);border-radius:6px;padding:5px 7px;font-weight:600;line-height:1.3}
+.evento{background:var(--gold-claro);border:1px solid #E3CD93;border-radius:6px;padding:5px 7px;font-weight:600;line-height:1.3}
 .evento.livre{background:transparent;border:1px dashed #D9CFB6;color:var(--suave);font-weight:500}
 
 /* Modal */
@@ -218,7 +218,7 @@ dialog::backdrop{background:rgba(14,26,43,.5);backdrop-filter:blur(3px)}
 .halo-credit:hover .halo-sym{transform:rotate(120deg)}
 .halo-sym{transition:transform .8s var(--ease)}
 .halo-nome{font-size:12px;letter-spacing:-.02em;color:#F5F7FA}
-.halo-nome small{font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;opacity:.7}
+.halo-nome small{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;opacity:.7}
 .credito{font-size:11px;color:#7F90A6;padding:10px 8px 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 
 @media (max-width:1100px){
