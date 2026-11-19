@@ -3,6 +3,9 @@
 # As outras 4 fontes sao coletadas pelo GitHub Actions as 06h; aqui so entra o que falta.
 # Log: coleta\data\atualizar-pc.log
 $ErrorActionPreference = 'Continue'
+# A tarefa roda numa janela oculta com codificacao OEM; forca UTF-8 para o node e o git sairem com acento certo no log.
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+$OutputEncoding = [Text.Encoding]::UTF8
 $repo = Split-Path -Parent $PSScriptRoot
 $log = Join-Path $PSScriptRoot 'data\atualizar-pc.log'
 New-Item -ItemType Directory -Force (Split-Path $log) | Out-Null
@@ -14,7 +17,9 @@ New-Item -ItemType Directory -Force (Split-Path $log) | Out-Null
   if ($LASTEXITCODE -ne 0) { 'ERRO: git pull falhou'; return }
   node coleta/run.js lancejudicial
   if ($LASTEXITCODE -ne 0) { 'ERRO: coleta falhou'; return }
+  'passo: gerar-dados'
   node gerar-dados.mjs   # codigo 1 = alguma fonte atrasada ou falhou: publica mesmo assim (o alerta fica no GitHub)
+  "passo: publicar (gerar-dados saiu com $LASTEXITCODE)"
   git add dados.json status.json
   git diff --cached --quiet
   if ($LASTEXITCODE -eq 0) { 'sem mudancas'; return }
