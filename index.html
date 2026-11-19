@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eleva Capital · Imóveis em leilão (piloto)</title>
+<meta name="description" content="Piloto da vitrine de imóveis em leilão da Eleva Capital: busca, filtros e calculadora de lance máximo.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E1A2B; --navy-2:#16263D; --gold:#C8A04A; --gold-esc:#8A6A1F; --gold-claro:#F3E7C9;
+  --papel:#F6F4EE; --branco:#FFFFFF; --tinta:#1B2433; --suave:#4A5568; --linha:#E3DED2;
+  --verde:#1F7A4D; --verde-claro:#E3F2EA; --verm:#A3352B; --verm-claro:#F8E6E3;
+  --raio:14px; --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Public Sans',system-ui,sans-serif;background:var(--papel);color:var(--tinta);-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+
+/* Cabeçalho de vidro */
+header.topo{position:sticky;top:0;z-index:40;background:rgba(14,26,43,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid rgba(255,255,255,.08);color:#F5F2EA}
+.topo .wrap{display:flex;align-items:center;gap:16px;height:64px}
+.marca{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;letter-spacing:.14em;font-size:15px}
+.marca i{display:block;width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--gold),#E7C98A);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.marca span{color:var(--gold)}
+.selo{margin-left:auto;font-size:12px;font-weight:600;letter-spacing:.04em;padding:6px 12px;border-radius:999px;background:rgba(200,160,74,.16);color:#E7C98A;border:1px solid rgba(200,160,74,.35);white-space:nowrap}
+
+/* Topo com busca */
+.hero{background:var(--navy);color:#F5F2EA;padding:44px 0 92px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-120px;top:-160px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(200,160,74,.22),transparent 65%);pointer-events:none}
+.hero h1{font-size:clamp(28px,4.2vw,46px);line-height:1.08;letter-spacing:-.02em;margin:0 0 12px;max-width:760px;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{margin:0;color:#B9C3D0;font-size:17px;max-width:620px;line-height:1.5}
+.numeros{display:flex;gap:28px;margin-top:26px;flex-wrap:wrap}
+.numeros b{display:block;font-size:26px;font-weight:800;color:#F5F2EA;letter-spacing:-.01em}
+.numeros span{font-size:13px;color:#9FB0C3}
+
+/* Barra de filtros em vidro, sobreposta ao hero */
+.filtros{position:relative;z-index:5;margin-top:-62px;background:rgba(255,255,255,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.7);border-radius:18px;box-shadow:0 18px 50px rgba(14,26,43,.14);padding:16px}
+.busca{display:flex;align-items:center;gap:10px;background:var(--branco);border:1px solid var(--linha);border-radius:12px;padding:0 14px;height:50px}
+.busca svg{flex:none;color:var(--suave)}
+.busca input{flex:1;border:0;outline:0;background:transparent;font-size:16px;min-width:0}
+.linha-filtros{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+.campo select{height:40px;border:1px solid var(--linha);border-radius:10px;background:var(--branco);padding:0 34px 0 12px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%234A5568' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;min-width:120px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--linha);background:var(--branco);cursor:pointer;font-size:14px;font-weight:600;transition:background .2s,border-color .2s,color .2s}
+.chip:hover{border-color:var(--gold)}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#F5F2EA}
+.limpar{margin-left:auto;border:0;background:none;color:var(--gold-esc);font-weight:700;cursor:pointer;font-size:14px;padding:8px}
+.limpar:hover{text-decoration:underline}
+
+.resultado{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 14px;flex-wrap:wrap}
+.resultado h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.resultado p{margin:0;color:var(--suave);font-size:14px}
+
+/* Cards */
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;padding-bottom:30px}
+.card{background:var(--branco);border:1px solid var(--linha);border-radius:var(--raio);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;text-align:left;padding:0;transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s;transform-style:preserve-3d}
+.card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(14,26,43,.14);border-color:#D6CCB4}
+.card:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.foto{position:relative;aspect-ratio:4/3;background:#E9E4D8;overflow:hidden}
+.foto img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease),filter .6s}
+.card:hover .foto img{transform:scale(1.06);filter:saturate(1.12)}
+.foto .vazia{position:absolute;inset:0;display:grid;place-items:center;color:#B5A88A}
+.tags{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none}
+.tag{font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(14,26,43,.62);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.tag.desc{background:var(--gold);color:var(--navy)}
+.prazo{position:absolute;left:10px;bottom:10px;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--navy)}
+.prazo.urgente{background:rgba(163,53,43,.92);color:#fff}
+.corpo{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tipo{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-esc)}
+.titulo{font-size:16px;font-weight:700;line-height:1.3;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.local{font-size:14px;color:var(--suave);margin:0}
+.preco{margin-top:auto;padding-top:10px;border-top:1px dashed var(--linha);display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.preco small{display:block;font-size:12px;color:var(--suave);font-weight:600}
+.preco b{font-size:20px;font-weight:800;letter-spacing:-.01em;color:var(--navy)}
+.preco .ref{text-align:right;font-size:12px;color:var(--suave)}
+.preco .ref s{color:#8A8F99}
+
+.mais{display:block;margin:6px auto 50px;height:48px;padding:0 28px;border-radius:999px;border:1px solid var(--navy);background:transparent;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
+.mais:hover{background:var(--navy);color:#F5F2EA}
+.vazio{text-align:center;padding:60px 20px;color:var(--suave)}
+
+/* Detalhe + calculadora */
+dialog{border:0;padding:0;border-radius:20px;width:min(980px,calc(100% - 24px));max-height:calc(100% - 24px);box-shadow:0 30px 80px rgba(0,0,0,.35);color:var(--tinta)}
+dialog::backdrop{background:rgba(14,26,43,.55);backdrop-filter:blur(4px)}
+.det{display:grid;grid-template-columns:1.05fr 1fr}
+.det-foto{position:relative;background:#E9E4D8;min-height:320px}
+.det-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.det-info{padding:26px 26px 22px;display:flex;flex-direction:column;gap:14px;overflow:auto;max-height:calc(100vh - 40px)}
+.fechar{position:absolute;right:12px;top:12px;z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.88);backdrop-filter:blur(8px);cursor:pointer;font-size:22px;line-height:1}
+.det-info h3{margin:0;font-size:22px;line-height:1.25;letter-spacing:-.01em}
+.det-info .orig{margin:0;font-size:13px;color:var(--suave);line-height:1.45}
+.fatos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fato{background:var(--papel);border-radius:10px;padding:10px 12px}
+.fato small{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
+.fato b{font-size:15px}
+.calc{border:1px solid var(--linha);border-radius:14px;padding:16px;background:linear-gradient(180deg,#FFFDF8,#FFF)}
+.calc h4{margin:0 0 4px;font-size:15px}
+.calc p.dica{margin:0 0 12px;font-size:13px;color:var(--suave)}
+.perfis{display:flex;gap:6px;margin-bottom:12px}
+.perfis .chip{height:32px;font-size:13px}
+.calc-campos{display:grid;grid-template-columns:1.3fr .8fr .8fr;gap:8px}
+.calc-campos label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
+.calc-campos input{height:40px;border:1px solid var(--linha);border-radius:10px;padding:0 10px;font-size:15px;font-weight:600;width:100%}
+.calc-campos input:focus{outline:2px solid var(--gold);border-color:transparent}
+.saida{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.saida div{border-radius:10px;padding:10px 12px;background:var(--papel)}
+.saida small{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
+.saida b{font-size:18px}
+.saida .max{background:var(--navy);color:#F5F2EA}
+.saida .max small{color:#B9C3D0}
+.saida .max b{color:var(--gold);font-size:22px}
+.veredito{grid-column:1/-1;font-size:14px;font-weight:600}
+.veredito.bom{background:var(--verde-claro)!important;color:var(--verde)}
+.veredito.ruim{background:var(--verm-claro)!important;color:var(--verm)}
+.acoes{display:flex;gap:10px;flex-wrap:wrap}
+.btn{height:46px;padding:0 18px;border-radius:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--navy);transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ouro{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.btn.linha{background:transparent;color:var(--navy)}
+.aviso{font-size:12px;color:var(--suave);margin:0}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;background:var(--navy);color:#F5F2EA;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .3s,transform .3s;z-index:100;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+footer{background:var(--navy);color:#9FB0C3;font-size:13px;padding:28px 0 40px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+footer p{margin:0;max-width:720px;line-height:1.55}
+.halo-credit{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;font-weight:600}
+.halo-credit:hover .halo-sym{transform:rotate(120deg)}
+.halo-sym{transition:transform .8s var(--ease)}
+.halo-nome{font-size:13px;letter-spacing:-.02em;color:#F5F7FA}
+.halo-nome small{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;opacity:.7}
+
+.entra{opacity:0;transform:translateY(14px);animation:entra .5s var(--ease) forwards}
+@keyframes entra{to{opacity:1;transform:none}}
+
+@media (max-width:820px){
+  .det{grid-template-columns:1fr}
+  .det-foto{min-height:220px}
+  .det-info{max-height:none}
+  .calc-campos{grid-template-columns:1fr 1fr}
+  .calc-campos label:first-child{grid-column:1/-1}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .selo{display:none}
+  .hero{padding:30px 0 84px}
+  .numeros{gap:18px}
+  .numeros b{font-size:22px}
+  .linha-filtros{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .linha-filtros::-webkit-scrollbar{display:none}
+  .campo select{min-width:110px}
+  .chips{flex-wrap:nowrap}
+  .chip{white-space:nowrap}
+  .limpar{margin-left:0;white-space:nowrap}
+  .grade{grid-template-columns:1fr}
+  .saida{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .entra{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<header class="topo">
+  <div class="wrap">
+    <a class="marca" href="#" aria-label="Eleva Capital"><i></i>ELEVA <span>CAPITAL</span></a>
+    <span class="selo">Piloto · dados reais de leilão</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Imóveis de leilão com desconto, <em>em um só lugar</em></h1>
+    <p>Busque por cidade, bairro ou tipo de imóvel, filtre por estado e desconto e calcule o lance máximo antes de disputar.</p>
+    <div class="numeros" aria-live="polite">
+      <div><b id="n-total">–</b><span>imóveis ativos</span></div>
+      <div><b id="n-fontes">–</b><span>fontes de leilão</span></div>
+      <div><b id="n-ufs">–</b><span>estados</span></div>
+      <div><b id="n-data">–</b><span>última coleta</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="filtros" role="search">
+    <label class="busca">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Cidade, bairro ou tipo: “apartamento Pinheiros”, “terreno Goiânia”" aria-label="Buscar imóveis" autocomplete="off">
+    </label>
+    <div class="linha-filtros">
+      <div class="campo"><label for="f-uf">Estado</label><select id="f-uf"><option value="">Todos</option></select></div>
+      <div class="campo"><label for="f-preco">Lance até</label><select id="f-preco">
+        <option value="">Qualquer valor</option><option value="150000">R$ 150 mil</option><option value="300000">R$ 300 mil</option><option value="500000">R$ 500 mil</option><option value="1000000">R$ 1 milhão</option><option value="3000000">R$ 3 milhões</option>
+      </select></div>
+      <div class="campo"><label for="f-desc">Desconto mínimo</label><select id="f-desc">
+        <option value="">Qualquer</option><option value="20">20% ou mais</option><option value="30">30% ou mais</option><option value="40">40% ou mais</option><option value="50">50% ou mais</option>
+      </select></div>
+      <div class="campo"><label for="f-nat">Natureza</label><select id="f-nat">
+        <option value="">Todas</option><option value="J">Judicial</option><option value="E">Extrajudicial</option>
+      </select></div>
+      <div class="campo"><label for="f-ordem">Ordenar</label><select id="f-ordem">
+        <option value="prazo">Encerram primeiro</option><option value="desc">Maior desconto</option><option value="menor">Menor lance</option><option value="maior">Maior lance</option>
+      </select></div>
+    </div>
+    <div class="linha-filtros">
+      <div class="chips" id="tipos" role="group" aria-label="Tipo de imóvel"></div>
+      <button class="chip" id="f-desoc" aria-pressed="false" type="button">Só desocupados</button>
+      <button class="limpar" id="limpar" type="button">Limpar filtros</button>
+    </div>
+  </div>
+
+  <div class="resultado">
+    <h2 id="r-titulo">Carregando imóveis…</h2>
+    <p id="r-sub"></p>
+  </div>
+  <div class="grade" id="grade"></div>
+  <button class="mais" id="mais" type="button" hidden>Mostrar mais imóveis</button>
+</main>
+
+<dialog id="det" aria-labelledby="d-titulo"></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<footer>
+  <div class="wrap">
+    <p id="rodape">Piloto para a Eleva Capital. Dados públicos coletados dos sites dos leiloeiros. Valores e datas podem mudar: confira sempre o edital antes de dar um lance.</p>
+    <span>Desenvolvido por <a href="https://haloconsulting.com.br/" target="_blank" rel="noopener" class="halo-credit" aria-label="Halo Company"><svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true" class="halo-sym"><g transform="rotate(-90 16 16)" fill="none" stroke-width="3.2" stroke-linecap="round"><circle cx="16" cy="16" r="11" pathLength="300" stroke="#E0506F" stroke-dasharray="86 214"/><circle cx="16" cy="16" r="11" pathLength="300" stroke="#E7C493" stroke-dasharray="86 214" stroke-dashoffset="-100"/><circle cx="16" cy="16" r="11" pathLength="300" stroke="#F8F3EB" stroke-dasharray="86 214" stroke-dashoffset="-200"/></g></svg><span class="halo-nome">halo <small>company</small></span></a></span>
+  </div>
+</footer>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const brl = (v) => v == null ? '–' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+const curto = (v) => v >= 1e6 ? 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : v >= 1e3 ? 'R$ ' + Math.round(v / 1e3) + ' mil' : brl(v);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const area = (a) => a == null ? null : a >= 10000 ? (a / 10000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' ha' : a.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + ' m²';
+const TIPOS = ['Apartamento', 'Casa', 'Terreno', 'Comercial', 'Rural', 'Galpão/Industrial', 'Garagem'];
+const POR_PAGINA = 24;
+
+let todos = [], lista = [], mostrados = 0, tipoSel = '', soDesoc = false;
+
+function prazo(iso) {
+  if (!iso) return null;
+  const dias = Math.floor((new Date(iso) - Date.now()) / 864e5);
+  const data = new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  if (dias < 0) return { txt: 'Encerra hoje', urg: true };
+  if (dias === 0) return { txt: 'Encerra hoje', urg: true };
+  if (dias === 1) return { txt: 'Encerra amanhã', urg: true };
+  if (dias <= 7) return { txt: `Encerra em ${dias} dias`, urg: false };
+  return { txt: `Encerra ${data}`, urg: false };
+}
+
+function card(x, i) {
+  const p = prazo(x.e);
+  const local = [x.b, x.c && x.u ? `${x.c}/${x.u}` : x.c].filter(Boolean).join(' · ');
+  const ref = x.p2 && x.p1 && x.p2 < x.p1 ? `<span class="ref">1ª praça<br><s>${curto(x.p1)}</s></span>` : x.av ? `<span class="ref">Avaliação<br>${curto(x.av)}</span>` : '';
+  return `<button class="card entra" style="animation-delay:${Math.min(i % POR_PAGINA, 12) * 30}ms" data-id="${esc(x.id)}" type="button">
+    <div class="foto">
+      ${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+      <div class="vazia" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11.5 12 4l9 7.5M5 10v10h14V10"/></svg></div>
+      <div class="tags">${x.d ? `<span class="tag desc">−${x.d}%</span>` : '<span></span>'}<span class="tag">${x.n === 'J' ? 'Judicial' : 'Extrajudicial'}</span></div>
+      ${p ? `<span class="prazo${p.urg ? ' urgente' : ''}">${p.txt}</span>` : ''}
+    </div>
+    <div class="corpo">
+      <span class="tipo">${esc(x.tp)}${x.a ? ' · ' + area(x.a) : ''}${x.oc ? ' · ' + esc(x.oc) : ''}</span>
+      <p class="titulo">${esc(x.t)}</p>
+      <p class="local">${esc(local) || '&nbsp;'}</p>
+      <div class="preco"><span><small>Lance atual</small><b>${brl(x.l)}</b></span>${ref}</div>
+    </div>
+  </button>`;
+}
+
+function filtrar() {
+  const termos = norm($('#q').value).split(/\s+/).filter(Boolean);
+  const uf = $('#f-uf').value, preco = +$('#f-preco').value || 0, desc = +$('#f-desc').value || 0, nat = $('#f-nat').value, ordem = $('#f-ordem').value;
+  lista = todos.filter((x) =>
+    (!uf || x.u === uf) && (!preco || x.l <= preco) && (!desc || (x.d || 0) >= desc) && (!nat || x.n === nat) &&
+    (!tipoSel || x.tp === tipoSel) && (!soDesoc || x.oc === 'Desocupado') &&
+    termos.every((t) => x._busca.includes(t))
+  );
+  const fim = (x) => (x.e ? new Date(x.e).getTime() : Infinity);
+  const ord = { prazo: (a, b) => fim(a) - fim(b), desc: (a, b) => (b.d || 0) - (a.d || 0), menor: (a, b) => a.l - b.l, maior: (a, b) => b.l - a.l }[ordem];
+  lista.sort(ord);
+  mostrados = 0;
+  $('#grade').innerHTML = '';
+  $('#r-titulo').textContent = lista.length ? `${lista.length.toLocaleString('pt-BR')} imóve${lista.length === 1 ? 'l' : 'is'} encontrado${lista.length === 1 ? '' : 's'}` : 'Nenhum imóvel com esses filtros';
+  const comDesc = lista.filter((x) => x.d);
+  $('#r-sub').textContent = comDesc.length ? `Desconto médio de ${Math.round(comDesc.reduce((s, x) => s + x.d, 0) / comDesc.length)}% nos que informam desconto` : '';
+  if (!lista.length) $('#grade').innerHTML = '<div class="vazio">Tente tirar algum filtro ou buscar outra cidade.</div>';
+  mostrarMais();
+}
+
+function mostrarMais() {
+  const parte = lista.slice(mostrados, mostrados + POR_PAGINA);
+  $('#grade').insertAdjacentHTML('beforeend', parte.map((x, i) => card(x, mostrados + i)).join(''));
+  mostrados += parte.length;
+  $('#mais').hidden = mostrados >= lista.length;
+}
+
+// ---------- Detalhe com calculadora ----------
+const PERFIS = { Conservador: 35, Alvo: 25, Agressivo: 15 };
+function abrir(id) {
+  const x = todos.find((i) => i.id === id);
+  if (!x) return;
+  const base = x.av || x.p1 || x.l;
+  const p = prazo(x.e);
+  const dlg = $('#det');
+  dlg.innerHTML = `<div class="det">
+    <div class="det-foto">${x.img ? `<img src="${esc(x.img)}" alt="Foto do imóvel" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<button class="fechar" aria-label="Fechar" type="button">×</button></div>
+    <div class="det-info">
+      <span class="tipo">${esc(x.tp)}${x.a ? ' · ' + area(x.a) : ''} · ${x.n === 'J' ? 'Judicial' : 'Extrajudicial'}</span>
+      <h3 id="d-titulo">${esc(x.t)}</h3>
+      ${x.o && x.o !== x.t ? `<p class="orig">${esc(x.o)}</p>` : ''}
+      <div class="fatos">
+        <div class="fato"><small>Local</small><b>${esc([x.b, x.c, x.u].filter(Boolean).join(', ') || '–')}</b></div>
+        <div class="fato"><small>Encerramento</small><b>${x.e ? new Date(x.e).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–'}</b></div>
+        <div class="fato"><small>Lance atual</small><b>${brl(x.l)}</b></div>
+        <div class="fato"><small>${x.av ? 'Avaliação' : '1ª praça'}</small><b>${brl(x.av || x.p1)}</b></div>
+        ${x.p2 ? `<div class="fato"><small>2ª praça</small><b>${brl(x.p2)}</b></div>` : ''}
+        <div class="fato"><small>Ocupação</small><b>${esc(x.oc || 'Ver edital')}</b></div>
+        ${x.cm ? `<div class="fato" style="grid-column:1/-1"><small>Comitente</small><b>${esc(x.cm)}</b></div>` : ''}
+      </div>
+      <div class="calc">
+        <h4>Qual o lance máximo?</h4>
+        <p class="dica">Ajuste o valor de mercado e o retorno que você quer. A conta usa custos de leilão (comissão, ITBI, registro e outros).</p>
+        <div class="perfis" role="group" aria-label="Perfil">${Object.keys(PERFIS).map((k) => `<button type="button" class="chip" data-perfil="${k}" aria-pressed="${k === 'Alvo'}">${k}</button>`).join('')}</div>
+        <div class="calc-campos">
+          <label>Valor de mercado (R$)<input id="c-mercado" inputmode="numeric" value="${Math.round(base).toLocaleString('pt-BR')}"></label>
+          <label>Custos (%)<input id="c-custos" inputmode="decimal" value="15"></label>
+          <label>Retorno (%)<input id="c-roi" inputmode="decimal" value="25"></label>
+        </div>
+        <div class="saida">
+          <div class="max"><small>Lance máximo</small><b id="o-max">–</b></div>
+          <div><small>Lucro no lance atual</small><b id="o-lucro">–</b></div>
+          <div class="veredito" id="o-ver"></div>
+        </div>
+      </div>
+      <div class="acoes">
+        <button class="btn ouro" type="button" id="pedir">Quero que a Eleva analise</button>
+        <a class="btn linha" href="${esc(x.url)}" target="_blank" rel="noopener">Ver no site do leilão (${esc(x.f)})</a>
+      </div>
+      <p class="aviso">${p ? p.txt + '. ' : ''}O valor de mercado sugerido é ${x.av ? 'a avaliação do edital' : 'o valor da 1ª praça'}; a análise da Eleva confirma o valor real, dívidas e ocupação.</p>
+    </div>
+  </div>`;
+  const num = (s) => +String(s).replace(/\./g, '').replace(',', '.') || 0;
+  const calcular = () => {
+    const mercado = num($('#c-mercado').value), custos = num($('#c-custos').value) / 100, roi = num($('#c-roi').value) / 100;
+    const max = mercado / ((1 + roi) * (1 + custos));
+    const lucro = mercado - x.l * (1 + custos);
+    $('#o-max').textContent = brl(max);
+    $('#o-lucro').textContent = brl(lucro);
+    const ver = $('#o-ver'), folga = max - x.l;
+    ver.className = 'veredito ' + (folga >= 0 ? 'bom' : 'ruim');
+    ver.textContent = folga >= 0 ? `O lance atual está ${brl(folga)} abaixo do seu limite.` : `O lance atual já passou do seu limite em ${brl(-folga)}.`;
+  };
+  dlg.querySelectorAll('[data-perfil]').forEach((b) => b.addEventListener('click', () => {
+    dlg.querySelectorAll('[data-perfil]').forEach((o) => o.setAttribute('aria-pressed', o === b));
+    $('#c-roi').value = PERFIS[b.dataset.perfil];
+    calcular();
+  }));
+  dlg.querySelectorAll('.calc input').forEach((i) => i.addEventListener('input', calcular));
+  dlg.querySelector('.fechar').addEventListener('click', () => dlg.close());
+  $('#pedir').addEventListener('click', () => avisar('No piloto, este botão abre o pedido de análise para a equipe da Eleva.'));
+  calcular();
+  dlg.showModal();
+}
+$('#det').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+
+let tmr;
+function avisar(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(tmr);
+  tmr = setTimeout(() => t.classList.remove('on'), 3200);
+}
+
+// ---------- Inicialização ----------
+fetch('dados.json').then((r) => r.json()).then((d) => {
+  todos = d.imoveis.map((x) => ({ ...x, _busca: norm([x.t, x.o, x.tp, x.b, x.c, x.u].join(' ')) }));
+  const ufs = [...new Set(todos.map((x) => x.u).filter(Boolean))].sort();
+  $('#f-uf').insertAdjacentHTML('beforeend', ufs.map((u) => `<option>${u}</option>`).join(''));
+  $('#tipos').innerHTML = ['Todos', ...TIPOS].map((t) => `<button class="chip" type="button" data-tipo="${t === 'Todos' ? '' : t}" aria-pressed="${t === 'Todos'}">${t}</button>`).join('');
+  $('#n-total').textContent = todos.length.toLocaleString('pt-BR');
+  $('#n-fontes').textContent = d.fontes.length;
+  $('#n-ufs').textContent = ufs.length;
+  $('#n-data').textContent = new Date(d.geradoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  $('#rodape').textContent = `Piloto para a Eleva Capital. Dados públicos coletados em ${new Date(d.geradoEm).toLocaleDateString('pt-BR')} de ${d.fontes.join(', ')}. Valores e datas podem mudar: confira sempre o edital antes de dar um lance.`;
+  filtrar();
+}).catch(() => { $('#r-titulo').textContent = 'Não foi possível carregar os imóveis.'; });
+
+let deb;
+$('#q').addEventListener('input', () => { clearTimeout(deb); deb = setTimeout(filtrar, 180); });
+['#f-uf', '#f-preco', '#f-desc', '#f-nat', '#f-ordem'].forEach((s) => $(s).addEventListener('change', filtrar));
+$('#tipos').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tipo]');
+  if (!b) return;
+  tipoSel = b.dataset.tipo;
+  $('#tipos').querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c === b));
+  filtrar();
+});
+$('#f-desoc').addEventListener('click', (e) => { soDesoc = !soDesoc; e.currentTarget.setAttribute('aria-pressed', soDesoc); filtrar(); });
+$('#limpar').addEventListener('click', () => {
+  $('#q').value = '';
+  ['#f-uf', '#f-preco', '#f-desc', '#f-nat'].forEach((s) => ($(s).value = ''));
+  $('#f-ordem').value = 'prazo';
+  tipoSel = ''; soDesoc = false;
+  $('#f-desoc').setAttribute('aria-pressed', 'false');
+  $('#tipos').querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c.dataset.tipo === ''));
+  filtrar();
+});
+$('#mais').addEventListener('click', mostrarMais);
+$('#grade').addEventListener('click', (e) => { const c = e.target.closest('.card'); if (c) abrir(c.dataset.id); });
+</script>
+</body>
+</html>
