@@ -13,11 +13,13 @@ import * as eleiloes from './sources/eleiloes.js';
 const FONTES = [leiloesjudiciais, megaleiloes, lancejudicial, zuk, eleiloes];
 const pasta = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data');
 const filtro = process.argv.slice(2);
+// COLETA_PULAR=lancejudicial pula fontes que bloqueiam o lugar onde a coleta roda (ex.: Lance Judicial barra o GitHub).
+const pular = (process.env.COLETA_PULAR || '').split(',').map((s) => s.trim()).filter(Boolean);
 
 const imoveis = [];
 const fontes = [];
 for (const f of FONTES) {
-  if (filtro.length && !filtro.includes(f.fonte.id)) continue;
+  if ((filtro.length && !filtro.includes(f.fonte.id)) || pular.includes(f.fonte.id)) continue;
   const t0 = Date.now();
   try {
     const itens = await f.coletar();

@@ -93,17 +93,17 @@ export async function coletar({ max = 900 } = {}) {
         body: body.toString(),
       });
     // O Zuk limita a frequência (429): espera e tenta de novo; se persistir, fica com o que já veio.
+    // Pausas crescentes: no GitHub o Zuk segura mais (com só 2 tentativas a coleta lá parou na metade).
     let r;
-    try {
-      r = await pedir(1500);
-    } catch {
+    for (const espera of [1500, 15000, 45000, 90000]) {
       try {
-        r = await pedir(15000);
-      } catch (e) {
-        console.warn(`  ↳ Zuk parou em ${cards.length} (${e.message})`);
+        r = await pedir(espera);
         break;
+      } catch (e) {
+        if (espera === 90000) console.warn(`  ↳ Zuk parou em ${cards.length} (${e.message})`);
       }
     }
+    if (!r) break;
     const novos = parseCards(await r.text()).filter((n) => !cards.some((c) => c.url === n.url));
     if (!novos.length) break;
     cards.push(...novos);

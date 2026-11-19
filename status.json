@@ -1,35 +1,42 @@
 {
- "quando": "2026-11-19T13:55:55.042Z",
- "ok": false,
+ "quando": "2026-11-19T13:59:25.696Z",
+ "ok": true,
  "publicado": true,
- "total": 2968,
+ "total": 2980,
  "fontes": [
   {
    "fonte": "Leilões Judiciais",
    "ok": true,
-   "imoveis": 1847
+   "imoveis": 1804,
+   "ultimaColetaOk": "2026-11-19T13:55:55.042Z",
+   "naoColetadaAgora": true
   },
   {
    "fonte": "Mega Leilões",
    "ok": true,
-   "imoveis": 515
+   "imoveis": 515,
+   "ultimaColetaOk": "2026-11-19T13:55:55.042Z",
+   "naoColetadaAgora": true
   },
   {
    "fonte": "Lance Judicial",
-   "ok": false,
-   "imoveis": 0,
-   "erro": "403 em https://www.grupolance.com.br/imoveis?pagina=1",
-   "mantidosDaColetaAnterior": 291
+   "ok": true,
+   "imoveis": 303,
+   "ultimaColetaOk": "2026-11-19T13:59:25.696Z"
   },
   {
    "fonte": "Portal Zuk",
    "ok": true,
-   "imoveis": 310
+   "imoveis": 310,
+   "ultimaColetaOk": "2026-11-19T13:55:55.042Z",
+   "naoColetadaAgora": true
   },
   {
    "fonte": "E-Leilões",
    "ok": true,
-   "imoveis": 48
+   "imoveis": 48,
+   "ultimaColetaOk": "2026-11-19T13:55:55.042Z",
+   "naoColetadaAgora": true
   }
  ]
 }

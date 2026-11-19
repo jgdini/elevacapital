@@ -27,10 +27,18 @@ Fora por enquanto: **Caixa** (bloqueia robô com CAPTCHA; não contornar — alt
 
 ## Atualização automática
 
-A coleta mora neste repositório (`jgdini/elevacapital`) e roda sozinha no GitHub Actions todo dia às 06:00 de Brasília
-(`.github/workflows/atualizar.yml`): `node coleta/run.js` → `node gerar-dados.mjs` → commit de `dados.json` e `status.json`.
+A coleta mora neste repositório (`jgdini/elevacapital`):
 
-- Ver se falhou: https://github.com/jgdini/elevacapital/actions (vermelho = falha; o GitHub também manda e-mail) e
-  https://jgdini.github.io/elevacapital/status.json (resultado por fonte).
-- Fonte que falha não some da vitrine: ficam os imóveis dela da coleta anterior. Se o total cair para menos da metade, nada é publicado.
-- Rodar na hora: Actions → "Atualizar vitrine" → Run workflow. Localmente: `node coleta/run.js && node gerar-dados.mjs`.
+- **GitHub Actions, todo dia às 06:00 de Brasília** (`.github/workflows/atualizar.yml`): coleta Leilões Judiciais, Mega,
+  Zuk e E-Leilões → `node gerar-dados.mjs` → commit de `dados.json` e `status.json` → o GitHub Pages publica.
+- **Lance Judicial** barra os servidores do GitHub (403 do Cloudflare), então é coletado no PC do João por
+  `coleta/atualizar-pc.ps1` (tarefa agendada do Windows). Log em `coleta/data/atualizar-pc.log`.
+- Cada fonte é independente: se uma falha (ou não é coletada naquela execução), ficam os imóveis dela da coleta anterior.
+  Se o total cair para menos da metade, nada é publicado.
+
+**Onde ver se falhou**
+- https://github.com/jgdini/elevacapital/actions: execução vermelha = falha (o GitHub manda e-mail). Fica vermelha se
+  uma fonte tentada falhar ou se alguma fonte ficar **mais de 3 dias** sem coleta boa (ex.: PC desligado e Lance parado).
+- https://jgdini.github.io/elevacapital/status.json: por fonte, quantos imóveis e a data da última coleta boa.
+
+Rodar na hora: Actions → "Atualizar vitrine" → Run workflow. Localmente: `node coleta/run.js && node gerar-dados.mjs`.

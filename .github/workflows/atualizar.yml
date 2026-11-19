@@ -28,8 +28,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Coletar (5 fontes)
+      - name: Coletar (4 fontes; Lance Judicial vem do PC)
         run: node coleta/run.js
+        env:
+          # Lance Judicial barra os servidores do GitHub (403 do Cloudflare); ele é coletado no PC (coleta/atualizar-pc.ps1).
+          COLETA_PULAR: lancejudicial
       - name: Gerar dados.json
         id: gerar
         continue-on-error: true
