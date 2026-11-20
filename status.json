@@ -1,42 +1,39 @@
 {
- "quando": "2026-11-19T16:17:50.173Z",
+ "quando": "2026-11-20T17:35:52.897Z",
  "ok": true,
  "publicado": true,
- "total": 3315,
+ "total": 3737,
  "fontes": [
   {
    "fonte": "Leilões Judiciais",
    "ok": true,
-   "imoveis": 1799,
-   "ultimaColetaOk": "2026-11-19T14:09:36.064Z",
-   "naoColetadaAgora": true
+   "imoveis": 1815,
+   "ultimaColetaOk": "2026-11-20T17:35:52.897Z"
   },
   {
    "fonte": "Mega Leilões",
    "ok": true,
-   "imoveis": 515,
-   "ultimaColetaOk": "2026-11-19T14:09:36.064Z",
-   "naoColetadaAgora": true
+   "imoveis": 675,
+   "ultimaColetaOk": "2026-11-20T17:35:52.897Z"
   },
   {
    "fonte": "Lance Judicial",
    "ok": true,
-   "imoveis": 303,
-   "ultimaColetaOk": "2026-11-19T16:17:50.173Z"
+   "imoveis": 298,
+   "ultimaColetaOk": "2026-11-19T16:17:50.173Z",
+   "naoColetadaAgora": true
   },
   {
    "fonte": "Portal Zuk",
    "ok": true,
-   "imoveis": 650,
-   "ultimaColetaOk": "2026-11-19T14:09:36.064Z",
-   "naoColetadaAgora": true
+   "imoveis": 901,
+   "ultimaColetaOk": "2026-11-20T17:35:52.897Z"
   },
   {
    "fonte": "E-Leilões",
    "ok": true,
    "imoveis": 48,
-   "ultimaColetaOk": "2026-11-19T14:09:36.064Z",
-   "naoColetadaAgora": true
+   "ultimaColetaOk": "2026-11-20T17:35:52.897Z"
   }
  ]
 }
